@@ -1,0 +1,9 @@
+<div class="container">
+  <div class="search-container">
+    <input type="text" [(ngModel)]="productName" placeholder="Enter product name...">
+    <button (click)="searchProduct()">Search</button>
+  </div>
+  <div class="results" *ngIf="searchResults">
+    <div [innerHTML]="searchResults"></div>
+  </div>
+</div>
