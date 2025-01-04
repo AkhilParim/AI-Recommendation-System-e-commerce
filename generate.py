@@ -2,7 +2,7 @@ import sys
 import os
 from dotenv import load_dotenv
 
-from langchain_openai import OpenAI
+from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import PromptTemplate
 from langchain_qdrant import QdrantVectorStore
 from langchain_openai import OpenAIEmbeddings
@@ -19,12 +19,30 @@ def get_recommendations(product_name):
     )
 
     products = qdrant.similarity_search(product_name, k=10)
+    
     prompt = """
                 You are a helpful shopping assistant trying to match customers with the right product.
                 You will be given a question from a customer and some list of prodcuts with the Name, Categories, Ratings of products available for sale that roughly match the customer's question. 
-                Respond in HTML markup, with an anchor tag at the end with images that link to the product pages and <br /> tags between your text response and product recommendations.
-                The anchor should be of the format: <a href={{link}} target="_blank”>{{name}}<img style={{border: "1px black solid"}} width="200px" src={{image}} /></a> but with the name, link, and image replaced with passed-in variables. 
-                If you have recommended products, end your response with "Click on a product to learn more!". If you are unsure or if the question seems unrelated to shopping, say "Sorry, I don't know how to help with that", and include some suggestions for better questions to ask. 
+                The output should be in a json format with the following keys: content and products. The content should be a string and the products should be in a list format. Each element should be a json object with the following keys: name, link, image, rating with the respective values.
+                If the products does not match the customer's question, look for the most relevant product related to the same/similar category or same product with different specifications and recommend it.
+                If the question seems completely unrelated to shopping, say "Sorry, I don't know how to help with that", and include some suggestions for better questions to ask. 
+
+                Example output:
+                {{
+                    "content": "Here are some products that match your question",
+                    "products": [
+                        {{
+                            "name": "Product 1",
+                            "link": "https://www.example.com/product1",
+                            "image": "https://www.example.com/product1.jpg",
+                            "rating": 4.5
+                        }}
+                    ]
+                }}
+
+                Donot include any other text in your response.
+                Donot include any other keys in your response.
+                If you donot have any products that match the customer's question, return an empty list.
 
                 Here is the customer question: {question}
 
@@ -33,15 +51,13 @@ def get_recommendations(product_name):
             """
 
     prompt = PromptTemplate.from_template(prompt)
-    llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    # llm = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", api_key=os.getenv("ANTHROPIC_API_KEY"))
     
     chain = prompt | llm
     output = chain.invoke({"question": product_name, "products": [text.page_content for text in products]})
-    return output
+    return output.content
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        product_name = sys.argv[1]
-        print(get_recommendations(product_name))
-    else:
-        print("Please provide a product name as an argument")
+    product_name = sys.argv[1]
+    print(get_recommendations(product_name))

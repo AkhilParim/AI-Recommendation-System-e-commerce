@@ -1,9 +1,30 @@
 <div class="container">
-  <div class="search-container">
-    <input type="text" [(ngModel)]="productName" placeholder="Enter product name...">
-    <button (click)="searchProduct()">Search</button>
+  <div class="search-container" [ngStyle]="{marginTop: searchResults['content'] || searchResults['products'] || loading ? '3rem' : '10rem'}">
+    <h1 *ngIf="!searchResults['content'] && !searchResults['products'] && !loading">Ask query about a product</h1>
+    <div class="search-wrapper">
+      <input type="text" [(ngModel)]="productName" placeholder="Enter query...">
+      <button (click)="searchProduct()">Search</button>
+    </div>
   </div>
-  <div class="results" *ngIf="searchResults">
-    <div [innerHTML]="searchResults"></div>
-  </div>
+
+  @if(loading) {
+    <div class="loading">Loading products...</div>
+  } @else if(searchResults) {
+    <div class="results">
+      <div class="content">{{ searchResults['content'] }}</div>
+      <div class="products">
+        @for(product of searchResults['products']; track product) {
+          <div>
+            <div class="product" (click)="openLink(product['link'])">
+              <div class="img-wrapper">
+                <img [src]="product['image']" alt="Product Image">
+              </div>
+              <h3>{{ product['name'] }}</h3>
+              <p>Rating: {{ product['rating'] }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
 </div>
