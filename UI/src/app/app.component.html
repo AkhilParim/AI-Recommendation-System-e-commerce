@@ -9,6 +9,8 @@
 
   @if(loading) {
     <div class="text">Loading products...</div>
+  } @else if(error) {
+    <div class="text">{{ error }}</div>
   } @else if(!isEmpty(searchResults)) {
     <div class="results">
       <div class="content">{{ searchResults['content'] }}</div>
