@@ -3,13 +3,13 @@
     <h1 *ngIf="!searchResults['content'] && !searchResults['products'] && !loading">Ask query about a product</h1>
     <div class="search-wrapper">
       <input type="text" [(ngModel)]="productName" placeholder="Enter query...">
-      <button (click)="searchProduct()">Search</button>
+      <button (click)="searchProduct()" [disabled]="loading">Search</button>
     </div>
   </div>
 
   @if(loading) {
-    <div class="loading">Loading products...</div>
-  } @else if(searchResults) {
+    <div class="text">Loading products...</div>
+  } @else if(!isEmpty(searchResults)) {
     <div class="results">
       <div class="content">{{ searchResults['content'] }}</div>
       <div class="products">
@@ -19,12 +19,14 @@
               <div class="img-wrapper">
                 <img [src]="product['image']" alt="Product Image">
               </div>
-              <h3>{{ product['name'] }}</h3>
+              <h4>{{ product['name'] }}</h4>
               <p>Rating: {{ product['rating'] }}</p>
             </div>
           </div>
         }
       </div>
     </div>
+  } @else {
+    <div class="text">Try asking "Suggest me some pants options" or "Best jeans for men"</div>
   }
 </div>

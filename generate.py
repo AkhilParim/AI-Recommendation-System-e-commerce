@@ -21,9 +21,9 @@ def get_recommendations(product_name):
     products = qdrant.similarity_search(product_name, k=10)
     
     prompt = """
-                You are a helpful shopping assistant trying to match customers with the right product.
+                You are a helpful shopping assistant trying to match customers with the right products. Provide as many products as possible that match the customer's question.
                 You will be given a question from a customer and some list of prodcuts with the Name, Categories, Ratings of products available for sale that roughly match the customer's question. 
-                The output should be in a json format with the following keys: content and products. The content should be a string and the products should be in a list format. Each element should be a json object with the following keys: name, link, image, rating with the respective values.
+                The output should be in a json format with the following keys: content and products. The content should be a string telling the customer about how the products match their question and the products should be in a list format. Each element should be a json object with the following keys: name, link, image, rating with the respective values.
                 If the products does not match the customer's question, look for the most relevant product related to the same/similar category or same product with different specifications and recommend it.
                 If the question seems completely unrelated to shopping, say "Sorry, I don't know how to help with that", and include some suggestions for better questions to ask. 
 
